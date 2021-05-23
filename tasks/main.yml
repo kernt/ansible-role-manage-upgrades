@@ -1,0 +1,24 @@
+---
+# tasks file for ansible-role-manage-upgrades#
+#
+- name: Includes "{{ ansible_facts['os_family'] == "Debian" }}" unattended-upgrades.yml"
+  include: unattended-upgrades.yml
+  tags:
+    - unattended
+    - debian
+  when: (ansible_facts['os_family'] == "Debian")
+
+- name: Includes "{{ ansible_facts['os_family'] == "Debian" }}" ubuntu-unattended-upgrades.yml"
+  include: ubuntu-unattended-upgrades.yml
+  tags:
+    - unttended
+    - ubuntu
+  when: (ansible_facts['distribution'] == "Ubuntu")
+  
+- name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8" }}" dnf-automatic.yml"
+  include: dnf-automatic.yml
+  tags: dnf_automatic
+  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8")
+
+- name: Do upgrade
+  include: upgrade.yml

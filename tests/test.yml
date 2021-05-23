@@ -1,0 +1,25 @@
+---
+- name: Upgrades os
+  hosts: localhost
+  gather_facts: true
+  any_errors_fatal: true # stop if anything is wrong
+  serial: 1              # one server at a time
+  # https://docs.ansible.com/ansible/latest/user_guide/playbooks_prompts.html
+  vars_prompt:
+  #   name: "confirmation"
+  #   prompt: "Are you sure you want to Update with reboots? Answer with 'YES'"
+  #   default: "NO"
+  #   private: no
+
+    - name: "doupgrade"
+      prompt: "Are you sure you want to Update with reboots? Answer with 'YES'"
+      default: "no"
+      private: no
+  tasks:
+
+    - name: Ansible prompt example.
+      debug:
+        msg: "{{ doupgrade }}"
+
+  roles:
+    - ansible-role-manage-upgrades

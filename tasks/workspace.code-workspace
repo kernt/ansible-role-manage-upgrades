@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../ansible-role-manage-docker"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../ansible-role-sync-letsencrypt"
+		}
+	],
+	"settings": {}
+}
