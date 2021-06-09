@@ -30,6 +30,15 @@ Including an example of how to use your role (for instance, with variables passe
       serial: 1              # one server at a time
       roles:
          - { role: username.rolename, x: 42 }
+         
+Do tests
+-----------
+You can tests on localhost in /tests.
+
+`ansible-playbook -i inventory test.yml`
+
+also is a good solution with [ansible-pull](https://docs.ansible.com/ansible/latest/cli/ansible-pull.html), too.
+
 
 Do Upgrades
 -----------
@@ -65,7 +74,7 @@ Sources
 * [ansible role update ubuntu](Ahttps://github.com/itnok/ansible-role-update-ubuntu)
 * [yum_update_reboot.yml](https://thenathan.net/wp-content/uploads/2020/07/yum_update_reboot.yml_.txt)
 * [ansible-role-upgrade](https://github.com/thorian93/ansible-role-upgrade)
-* [reboot-and-wait-reboot-complete-ansible-playbook])(https://www.jeffgeerling.com/blog/2018/reboot-and-wait-reboot-complete-ansible-playbook)
+* [reboot-and-wait-reboot-complete-ansible-playbook](https://www.jeffgeerling.com/blog/2018/reboot-and-wait-reboot-complete-ansible-playbook)
 * [ansible-rolling-reboot](https://github.com/dareko/ansible-rolling-reboot)
 * [ansible-rolling-update-or-deployment](https://danasmera.com/ansible-rolling-update-or-deployment)
 * [Ansible-and-rolling-upgrades](https://gquintana.github.io/2017/07/15/Ansible-and-rolling-upgrades.html)
