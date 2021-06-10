@@ -7,20 +7,46 @@
   changed_when: 0
 
 # get a list of packages that have updates
-- name: get list of pending upgrades
-  command: apt-get --simulate dist-upgrade
+#- name: get list of pending upgrades wih apt-get
+#  command: apt-get --simulate dist-upgrade
+#  args:
+#    warn: false # don't warn us about apt having its own plugin
+#  register: apt_simulate
+#  changed_when: 0
+
+# collect information
+- name: "apt-get listonly collect"
+  shell: apt-get --just-print upgrade 2>&1 | perl -ne 'if (/Inst\s([\w,\-,\d,\.,~,:,\+]+)\s\[([\w,\-,\d,\.,~,:,\+]+)\]\s\(([\w,\-,\d,\.,~,:,\+]+)\)? /i) {print "PROGRAM= $1 INSTALLED= $2 AVAILABLE= $3\n"}' | column -s ' ' -t
   args:
-    warn: false # don't warn us about apt having its own plugin
+    warn: false
   register: apt_simulate
-  changed_when: 0
+  changed_when: false
+  # changed_when: 0
+
+# apt-get listonly output
+- name: apt show upgradable packages
+  debug: 
+    var: apt_simulate.stdout_lines
+  changed_when: false
+
+
+#- name: show list of pending upgrades
+#  debug:
+#    var: "{{ apt_simulate.stout }}"
+
+- name: Upgrade all apt packages
+  apt:
+    name: "*"
+    state: latest
 
 # pick out list of pending updates from command output. This essentially
 # takes the above output from "apt-get --simulate dist-upgrade", and
 # pipes it through "cut -f2 -d' ' | sort"
-- name: parse apt-get output to get list of changed packages
-  set_fact:
-    updates: '{{ apt_simulate.stdout_lines | select("match", "^Inst ") | list | splitpart(1, " ") | list | sort }}'
-  changed_when: 0
+# split is not working
+#- name: parse apt-get output to get list of changed packages
+#  set_fact:
+#    updates: '{{ apt_simulate.stdout_lines | select("match", "^i ") | list | split(1, " ") | list | sort }}'
+#  changed_when: 0
 
 # tell user about packages being updated
 - name: show pending updates
@@ -33,6 +59,7 @@
   when: updates.0 is defined
 
 # if a new kernel is incoming, remove old ones to avoid full /boot
+# split is not working
 - name: apt-get autoremove
   command: apt-get -y autoremove
   args:
@@ -52,7 +79,6 @@
 - meta: end_play
   when: not file_reboot_required.stat.exists
 
-
 # for example for your monitoring if you have one
 # add nagios downtime for the webserver
 # - name: set nagios downtime for host
@@ -65,12 +91,12 @@
 #     host: '{{ inventory_hostname }}'
 #     author: "{{ lookup('env','USER') }}"
 # https://www.redpill-linpro.com/sysadvent/2017/12/24/ansible-system-updates.html
-    # - name: disable haproxy backend {{ inventory_hostname }}
-    #   delegate_to: "{{ item }}"
-    #   haproxy:
-    #     state: disabled
-    #     host: "{{ inventory_hostname | splitpart(0, '.') }}"
-    #     socket: /var/run/haproxy.sock
-    #     wait: yes
-    #     #drain: yes # requires ansible 2.4
-    #   with_items: "{{ groups.loadbalancers }}"
+# - name: disable haproxy backend {{ inventory_hostname }}
+#   delegate_to: "{{ item }}"
+#   haproxy:
+#     state: disabled
+#     host: "{{ inventory_hostname | splitpart(0, '.') }}"
+#     socket: /var/run/haproxy.sock
+#     wait: yes
+#     #drain: yes # requires ansible 2.4
+#   with_items: "{{ groups.loadbalancers }}"
