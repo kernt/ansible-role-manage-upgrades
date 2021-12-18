@@ -29,7 +29,7 @@ Including an example of how to use your role (for instance, with variables passe
       any_errors_fatal: true # stop if anything is wrong
       serial: 1              # one server at a time
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: ansible-role-manage-upgrades }
          
 Do tests
 -----------
