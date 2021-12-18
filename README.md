@@ -90,4 +90,4 @@ BSD
 Author Information
 ------------------
 
-tkern linux system administrator
+Tobias Kern linux system administrator
