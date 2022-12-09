@@ -1,15 +1,15 @@
 ---
 - block:
     # Check for problems that could cause this role to fail
-    - include_tasks: role_checks.yml
+    - ansible.builtin.include_tasks: role_checks.yml
 
     - name: Install dnf-automatic
-      dnf:
+      ansible.builtin.dnf:
         name: dnf-automatic
         state: present
 
     - name: Create dnf-automatic configuration file
-      template:
+      ansible.builtin.include_vars:
         src: automatic.conf.j2
         dest: /etc/dnf/automatic.conf
         owner: root
@@ -17,9 +17,9 @@
         mode: 0644
 
     - name: Ensure dnf-automatic systemd timer is in the desired state
-      systemd:
+      ansible.builtin.systemd:
         name: "{{ dnf_automatic_timer }}"
         state: "{{ dnf_automatic_timer_state }}"
         enabled: "{{ dnf_automatic_timer_enabled }}"
-  when: dnf_automatic_manage | bool
+      when: dnf_automatic_manage | bool
 

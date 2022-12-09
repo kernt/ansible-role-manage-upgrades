@@ -2,21 +2,15 @@
 - name: Upgrade all packages
   dnf:
     name: "*"
-    state: latest
 
 - name: Autoremove unneeded packages installed as dependencies
   dnf:
     autoremove: yes
 
 - name: Reboot required
-  command: "/usr/bin/needs-restarting -r"
+  ansible.builtin.command: "/usr/bin/needs-restarting -r"
   register: reboot_required
   ignore_errors: True
 #     changed_when: False
-#     failed_when: reboot_required.rc == 2
-#     when: doupgrade == "yes"
-
-- name: reboot server if neesesary
-  reboot:
-  when: (reboot_required == True and doupgrade == "yes")
-  # "stdout_lines": ["No core libraries or services have been updated since boot-up.", "Reboot should not be necessary."]
+  failed_when: reboot_required.rc == 2
+  when: doupgrade == "yes"

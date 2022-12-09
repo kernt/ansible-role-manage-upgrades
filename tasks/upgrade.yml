@@ -1,25 +1,23 @@
 ---
-
-#- name: doupgrade
-#  prompt: Do Upgrade you os
-#  default: no
-#  private: false
-
 #- name: Check Confirmation
 #  fail: msg="Playbook run confirmation failed"
 #  when: doupgrade  != "yes"
+- name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "9" }}" dnf-upgrade.yml"
+  ansible.builtin.import_tasks: dnf-upgrade.yml
+  tags: dnf_upgrade
+  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "9")
 
 - name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8" }}" dnf-upgrade.yml"
-  include: dnf-upgrade.yml
+  ansible.builtin.import_tasks: dnf-upgrade.yml
   tags: dnf_upgrade
   when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8")
 
 - name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8" }}" yum-upgrade.yml"
-  include: yum-upgrade.yml
+  ansible.builtin.import_tasks: yum-upgrade.yml
   tags: yum_upgrade
   when: ansible_facts['os_family'] == 'RedHat' and ansible_facts ['distribution_major_version'] <= '7'
 
 - name: Includes "{{ ansible_facts['distribution'] == "Debian" apt-upgrade.yml"
-  include: apt-upgrade.yml
+  ansible.builtin.import_tasks: apt-upgrade.yml
   tags: apt_upgrade
   when: ansible_facts['os_family'] == 'Debian'

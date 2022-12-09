@@ -1,13 +1,15 @@
 ---
 # defaults file for ansible-role-manage-upgrades
 #
+# allow reboot vm
+doupgrade: ""
 ################################# dnf_automatic##################################################
 # Install Settings
-# ================
+#
 dnf_automatic_manage: false
 
 # Config Settings
-# ===============
+#
 dnf_automatic_template: "automatic.conf.j2"
 dnf_automatic_config_settings:
   commands:

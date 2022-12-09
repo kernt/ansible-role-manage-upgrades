@@ -1,4 +1,4 @@
-  - name: Yum update the system
-    yum:
-      name: "*"
-      state: latest
+---
+- name: Yum update the system
+  ansible.builtin.yum:
+    name: "*"

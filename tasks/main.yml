@@ -2,23 +2,32 @@
 # tasks file for ansible-role-manage-upgrades#
 #
 - name: Includes "{{ ansible_facts['os_family'] == "Debian" }}" unattended-upgrades.yml"
-  include: unattended-upgrades.yml
+  ansible.builtin.import_tasks: unattended-upgrades.yml
   tags:
     - unattended
     - debian
-  when: (ansible_facts['os_family'] == "Debian")
+  when: ansible_facts['distribution'] == "Debian"
 
 - name: Includes "{{ ansible_facts['os_family'] == "Debian" }}" ubuntu-unattended-upgrades.yml"
-  include: ubuntu-unattended-upgrades.yml
+  ansible.builtin.import_tasks: ubuntu-unattended-upgrades.yml
   tags:
     - unttended
     - ubuntu
-  when: (ansible_facts['distribution'] == "Ubuntu")
-  
-- name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8" }}" dnf-automatic.yml"
-  include: dnf-automatic.yml
-  tags: dnf_automatic
-  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8")
+  when: ansible_facts['distribution'] == "Ubuntu"
 
-- name: Do upgrade
-  include: upgrade.yml
+- name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "7" }}" dnf-automatic.yml"
+  ansible.builtin.import_tasks: dnf-automatic.yml
+  tags: dnf_automatic
+  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] <= "7")
+
+- name: Includes "{{ ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8" }}" dnf-automatic.yml"
+  ansible.builtin.import_tasks: dnf-automatic.yml
+  tags: dnf_automatic
+  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] >= "8")
+
+- name: upgrade os 
+  ansible.builtin.import_tasks: upgrade.yml
+
+- name: Do reboot if set
+  ansible.builtin.import_tasks: reboot.yml
+  #when: doupgrade is True

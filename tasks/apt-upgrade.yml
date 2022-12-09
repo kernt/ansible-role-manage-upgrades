@@ -1,14 +1,13 @@
 ---
 ## https://www.redpill-linpro.com/sysadvent/2017/12/24/ansible-system-updates.html
-# do an "apt-get update", to ensure latest package lists
 - name: apt-get update
-  apt:
+  ansible.builtin.apt:
     update-cache: yes
   changed_when: 0
 
 # get a list of packages that have updates
 #- name: get list of pending upgrades wih apt-get
-#  command: apt-get --simulate dist-upgrade
+#  ansible.builtin.command: apt-get --simulate dist-upgrade
 #  args:
 #    warn: false # don't warn us about apt having its own plugin
 #  register: apt_simulate
@@ -16,52 +15,46 @@
 
 # collect information
 - name: "apt-get listonly collect"
-  shell: apt-get --just-print upgrade 2>&1 | perl -ne 'if (/Inst\s([\w,\-,\d,\.,~,:,\+]+)\s\[([\w,\-,\d,\.,~,:,\+]+)\]\s\(([\w,\-,\d,\.,~,:,\+]+)\)? /i) {print "PROGRAM= $1 INSTALLED= $2 AVAILABLE= $3\n"}' | column -s ' ' -t
+  ansible.builtin.shell: apt-get --just-print upgrade 2>&1 | perl -ne 'if (/Inst\s([\w,\-,\d,\.,~,:,\+]+)\s\[([\w,\-,\d,\.,~,:,\+]+)\]\s\(([\w,\-,\d,\.,~,:,\+]+)\)? /i) {print "PROGRAM= $1 INSTALLED= $2 AVAILABLE= $3\n"}' | column -s ' ' -t
   args:
     warn: false
   register: apt_simulate
   changed_when: false
-  # changed_when: 0
 
 # apt-get listonly output
 - name: apt show upgradable packages
-  debug: 
+  ansible.builtin.debug: 
     var: apt_simulate.stdout_lines
   changed_when: false
 
-
-#- name: show list of pending upgrades
-#  debug:
-#    var: "{{ apt_simulate.stout }}"
-
 - name: Upgrade all apt packages
-  apt:
+  ansible.builtin.apt:
     name: "*"
-    state: latest
 
 # pick out list of pending updates from command output. This essentially
 # takes the above output from "apt-get --simulate dist-upgrade", and
 # pipes it through "cut -f2 -d' ' | sort"
 # split is not working
 #- name: parse apt-get output to get list of changed packages
-#  set_fact:
+#  ansible.builtin.set_fact:
 #    updates: '{{ apt_simulate.stdout_lines | select("match", "^i ") | list | split(1, " ") | list | sort }}'
 #  changed_when: 0
 
 # tell user about packages being updated
 - name: show pending updates
-  debug:
+  ansible.builtin.debug:
     var: updates
   when: updates.0 is defined
 
 # request manual ack before proceeding with package upgrade
-- pause:
+- name: pause if updates is defined
+  ansible.builtin.pause:
   when: updates.0 is defined
 
 # if a new kernel is incoming, remove old ones to avoid full /boot
 # split is not working
 - name: apt-get autoremove
-  command: apt-get -y autoremove
+  ansible.builtin.command: apt-get -y autoremove
   args:
     warn: false
   when: '"Inst linux-image-" in apt_simulate.stdout'
@@ -69,14 +62,16 @@
 
 # check if we need a reboot
 - name: check if reboot needed
-  stat: path=/var/run/reboot-required
+  ansible.builtin.stat: 
+    path: /var/run/reboot-required
   register: file_reboot_required
 
 # "meta: end_play" aborts the rest of the tasks in the current «tasks:»
 # section, for the current webserver
 # "when:" clause ensures that the "meta: end_play" only triggers if the
 # current webserver does _not_ need a reboot
-- meta: end_play
+- name: set meta info end_play
+  meta: end_play
   when: not file_reboot_required.stat.exists
 
 # for example for your monitoring if you have one
@@ -90,7 +85,10 @@
 #     minutes: 30
 #     host: '{{ inventory_hostname }}'
 #     author: "{{ lookup('env','USER') }}"
+#   when: monitoring_set_downtime == True
+#   - 
 # https://www.redpill-linpro.com/sysadvent/2017/12/24/ansible-system-updates.html
+# 
 # - name: disable haproxy backend {{ inventory_hostname }}
 #   delegate_to: "{{ item }}"
 #   haproxy:
@@ -100,3 +98,8 @@
 #     wait: yes
 #     #drain: yes # requires ansible 2.4
 #   with_items: "{{ groups.loadbalancers }}"
+
+- name: "Check if reboot is required"
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required

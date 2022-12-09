@@ -1,0 +1,19 @@
+---
+# https://ansible-lint.readthedocs.io/#configuration-file
+profile: production
+exclude_paths:
+  - .cache/
+  - .github/
+rules:
+  document-start:
+    present: true
+  indentation:
+    level: error
+    indent-sequences: consistent
+skip_list:
+- '301'
+- '403'
+- '204'
+- '306]'
+#
+# ignore added because this file i

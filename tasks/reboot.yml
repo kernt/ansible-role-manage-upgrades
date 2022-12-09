@@ -1,0 +1,19 @@
+---
+
+- name: "Set is_reboot_required fact"
+  ansible.builtin.set_fact:
+    is_reboot_required: "{{ True if reboot_required.stat.exists and not is_ubuntu_localhost and not is_ubuntu_inside_container else False }}"
+
+- name: Debug ansible_host is_reboot_required
+  ansible.builtin.debug:
+    msg: "{{ ansible_host }} is now back up and running!"
+  when: is_reboot_required | bool
+
+- name: "Reboot of {{ansible_host}} is needed"
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+  when: (is_reboot_required ) AND (doupgrade.lower == 'yes')
+
+- name: reboot server if neesesary
+  reboot:
+  when: reboot_required is true
